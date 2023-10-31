@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"IM-SDK/manager"
-	"IM-SDK/model"
-	"IM-SDK/util"
 	"github.com/go-netty/go-netty"
+	"im-sdk/manager"
+	"im-sdk/model"
+	"im-sdk/util"
 )
 
 var wsClientHandler = &WSClientHandler{}

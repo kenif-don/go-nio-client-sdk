@@ -1,7 +1,7 @@
 package process
 
 import (
-	"IM-SDK/model"
+	"im-sdk/model"
 )
 
 type IIMProcess interface {

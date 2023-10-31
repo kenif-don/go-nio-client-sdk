@@ -1,11 +1,11 @@
 package manager
 
 import (
-	"IM-SDK/model"
-	"IM-SDK/process"
-	"IM-SDK/util"
 	"github.com/go-netty/go-netty"
 	"github.com/go-netty/go-netty/utils"
+	"im-sdk/model"
+	"im-sdk/process"
+	"im-sdk/util"
 	"time"
 )
 

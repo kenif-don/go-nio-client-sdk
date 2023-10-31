@@ -1,12 +1,12 @@
 package client
 
 import (
-	"IM-SDK/handler"
-	"IM-SDK/util"
 	"github.com/go-netty/go-netty"
 	"github.com/go-netty/go-netty-transport/websocket"
 	"github.com/go-netty/go-netty/codec/format"
 	"github.com/go-netty/go-netty/codec/frame"
+	"im-sdk/handler"
+	"im-sdk/util"
 )
 
 type WSClient struct {
