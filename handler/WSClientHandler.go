@@ -37,17 +37,17 @@ func (_self *WSClientHandler) GetMessageManager() *manager.MessageManager {
 func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty.Message) {
 	if res, ok := message.(map[string]interface{}); ok {
 		protocol := model.NewProtocol()
-		protocol.Type = res["type"].(int)
+		protocol.Type = int(res["type"].(uint64))
 		protocol.From = res["from"].(string)
 		protocol.To = res["to"].(string)
-		protocol.Ack = res["ack"].(int)
+		protocol.Ack = int(res["ack"].(uint64))
 		protocol.Data = res["data"].(string)
 		protocol.No = res["no"].(string)
 		protocol.Ext1 = res["ext1"].(string)
 		protocol.Ext2 = res["ext2"].(string)
 		protocol.Ext3 = res["ext3"].(string)
-		protocol.Ext4 = res["ext4"].(int)
-		protocol.Ext5 = res["ext5"].(int)
+		protocol.Ext4 = int(res["ext4"].(uint64))
+		protocol.Ext5 = int(res["ext5"].(uint64))
 
 		switch protocol.Type {
 		case model.ChannelLogin:
@@ -76,6 +76,5 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 
 func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, ex netty.Exception) {
 	ctx.HandleException(ex)
-	util.Err("【IM】协议出现异常 异常信息：%s", ex.Error())
 	_self.messageManager.LogicProcess.Exception(ctx, ex)
 }
