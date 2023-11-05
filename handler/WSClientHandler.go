@@ -52,9 +52,9 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 		switch protocol.Type {
 		case model.ChannelLogin:
 			if protocol.Ack == 200 {
-				_self.messageManager.LogicProcess.LoginOk(protocol)
+				_self.process.LoginOk(protocol)
 			} else {
-				_self.messageManager.LogicProcess.LoginFail(protocol)
+				_self.process.LoginFail(protocol)
 			}
 			break
 		case model.ChannelOne2oneMsg:
@@ -69,12 +69,13 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 			break
 		}
 		//触发接收到消息的回调
-		_self.messageManager.LogicProcess.ReceivedMessage(protocol)
+		_self.process.ReceivedMessage(protocol)
 	}
 	ctx.HandleRead(message)
 }
 
-func (*WSClientHandler) HandleException(ctx netty.ExceptionContext, ex netty.Exception) {
-	util.Err("【IM】协议出现异常 异常信息：%s", ex.Error())
+func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, ex netty.Exception) {
 	ctx.HandleException(ex)
+	util.Err("【IM】协议出现异常 异常信息：%s", ex.Error())
+	_self.messageManager.LogicProcess.Exception(ctx, ex)
 }
