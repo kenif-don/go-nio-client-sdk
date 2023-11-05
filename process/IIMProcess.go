@@ -1,7 +1,6 @@
 package process
 
 import (
-	"github.com/go-netty/go-netty"
 	"im-sdk/model"
 )
 
@@ -21,5 +20,5 @@ type IIMProcess interface {
 	//SendOk qos中的消息发送成功 服务器成功返回
 	SendOk(protocol *model.Protocol)
 	//Exception 链接发生异常
-	Exception(ctx netty.ExceptionContext, ex netty.Exception)
+	Exception(msg string)
 }
