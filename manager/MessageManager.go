@@ -20,9 +20,9 @@ type MessageManager struct {
 	Channel       netty.Channel
 }
 
-func New(Channel netty.Channel) *MessageManager {
+func New(Channel netty.Channel, process process.IIMProcess) *MessageManager {
 	return &MessageManager{
-		LogicProcess: process.New(),
+		LogicProcess: process,
 		Channel:      Channel,
 	}
 }

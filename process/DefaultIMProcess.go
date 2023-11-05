@@ -20,30 +20,3 @@ type IIMProcess interface {
 	//SendOk qos中的消息发送成功 服务器成功返回
 	SendOk(protocol *model.Protocol)
 }
-
-var LogicProcess = &DefaultIMProcess{}
-
-type DefaultIMProcess struct {
-}
-
-func New() *DefaultIMProcess {
-	return LogicProcess
-}
-func (*DefaultIMProcess) SendOkCallback(protocol *model.Protocol) {
-
-}
-func (*DefaultIMProcess) SendFailedCallback(protocol *model.Protocol) {
-
-}
-func (*DefaultIMProcess) LoginOk(protocol *model.Protocol) {
-
-}
-func (*DefaultIMProcess) LoginFail(protocol *model.Protocol) {
-
-}
-func (*DefaultIMProcess) ReceivedMessage(protocol *model.Protocol) {
-
-}
-func (*DefaultIMProcess) SendOk(protocol *model.Protocol) {
-
-}

@@ -4,6 +4,7 @@ import (
 	"github.com/go-netty/go-netty"
 	"im-sdk/manager"
 	"im-sdk/model"
+	"im-sdk/process"
 	"im-sdk/util"
 )
 
@@ -11,15 +12,17 @@ var wsClientHandler = &WSClientHandler{}
 
 type WSClientHandler struct {
 	messageManager *manager.MessageManager
+	process        process.IIMProcess
 }
 
-func NewClientHandler() *WSClientHandler {
+func NewClientHandler(process process.IIMProcess) *WSClientHandler {
+	wsClientHandler.process = process
 	return wsClientHandler
 }
 func (_self *WSClientHandler) HandleActive(ctx netty.ActiveContext) {
-	util.Out("【IM】与服务器连接成功！")
-	_self.messageManager = manager.New(ctx.Channel())
 	ctx.HandleActive()
+	util.Out("【IM】与服务器连接成功！")
+	_self.messageManager = manager.New(ctx.Channel(), _self.process)
 }
 func (_self *WSClientHandler) GetMessageManager() *manager.MessageManager {
 	return _self.messageManager
