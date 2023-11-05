@@ -15,6 +15,9 @@ type WSClientHandler struct {
 	process        process.IIMProcess
 }
 
+func GetClientHandler() *WSClientHandler {
+	return wsClientHandler
+}
 func NewClientHandler(process process.IIMProcess) *WSClientHandler {
 	wsClientHandler.process = process
 	return wsClientHandler

@@ -6,6 +6,7 @@ import (
 	"github.com/go-netty/go-netty/codec/format"
 	"github.com/go-netty/go-netty/codec/frame"
 	"im-sdk/handler"
+	"im-sdk/process"
 	"im-sdk/util"
 )
 
@@ -19,12 +20,12 @@ func New(url string) *WSClient {
 		Url: url,
 	}
 }
-func (_self *WSClient) Startup() error {
+func (_self *WSClient) Startup(process process.IIMProcess) error {
 	client := func(channel netty.Channel) {
 		channel.Pipeline().
 			AddLast(frame.PacketCodec(1024)).
 			AddLast(format.JSONCodec(true, false)).
-			AddLast(handler.NewClientHandler())
+			AddLast(handler.NewClientHandler(process))
 	}
 	var bootstrap = netty.NewBootstrap(netty.WithClientInitializer(client), netty.WithTransport(websocket.New()))
 	channel, err := bootstrap.Connect(_self.Url)
