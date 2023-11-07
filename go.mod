@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/go-netty/go-netty v1.6.4
-	github.com/go-netty/go-netty-transport v1.7.5
+	github.com/go-netty/go-netty-transport v1.7.6
 )
 
 require (

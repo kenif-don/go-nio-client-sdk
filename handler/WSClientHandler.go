@@ -50,8 +50,7 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 				_self.process.LoginFail(protocol)
 			}
 			break
-		case model.ChannelOne2oneMsg:
-		case model.ChannelGroupMsg:
+		case model.ChannelOne2oneMsg, model.ChannelGroupMsg:
 			//1-自己发出的消息 服务器返回收到的标志 100-别人给自己发送的
 			if protocol.Ack == 1 || protocol.Ack == 100 {
 				_self.messageManager.SendAck(protocol)
