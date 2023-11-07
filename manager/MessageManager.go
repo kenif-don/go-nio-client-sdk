@@ -55,7 +55,7 @@ func (_self *MessageManager) Send(protocol *model.Protocol) {
 	//ACK为100 且 No不为空 就将消息放入Qos
 	if protocol.Ack == 100 && protocol.No != "" {
 		//判断qos中是否已存在此消息 存在 那么此消息就不发 交给Qos即可
-		if _self.qosMessageDTO[protocol.No].Protocol.No != "" {
+		if _self.qosMessageDTO[protocol.No] != nil && _self.qosMessageDTO[protocol.No].Protocol.No != "" {
 			util.Out("【IM】Qos中已存在ID[%s]的消息,直接交由Qos管理，不再发送\n", protocol.No)
 			return
 		}
