@@ -22,8 +22,9 @@ type MessageManager struct {
 
 func New(Channel netty.Channel, process process.IIMProcess) *MessageManager {
 	return &MessageManager{
-		LogicProcess: process,
-		Channel:      Channel,
+		LogicProcess:  process,
+		Channel:       Channel,
+		qosMessageDTO: make(map[string]*model.QosMsg),
 	}
 }
 func (_self *MessageManager) HandlerAck(protocol *model.Protocol) {
