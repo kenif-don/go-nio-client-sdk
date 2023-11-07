@@ -1,6 +1,7 @@
 package client
 
 import (
+	"errors"
 	"github.com/go-netty/go-netty"
 	"github.com/go-netty/go-netty-transport/websocket"
 	"github.com/go-netty/go-netty/codec/format"
@@ -13,6 +14,7 @@ import (
 type WSClient struct {
 	Url     string
 	Channel netty.Channel
+	handler *handler.WSClientHandler
 }
 
 func New(url string) *WSClient {
@@ -21,11 +23,12 @@ func New(url string) *WSClient {
 	}
 }
 func (_self *WSClient) Startup(process process.IIMProcess) error {
+	_self.handler = handler.NewClientHandler(process)
 	client := func(channel netty.Channel) {
 		channel.Pipeline().
 			AddLast(frame.PacketCodec(1024)).
 			AddLast(format.JSONCodec(true, false)).
-			AddLast(handler.NewClientHandler(process))
+			AddLast(_self.handler)
 	}
 	var bootstrap = netty.NewBootstrap(netty.WithClientInitializer(client), netty.WithTransport(websocket.New()))
 	channel, err := bootstrap.Connect(_self.Url)
@@ -42,4 +45,16 @@ func (_self *WSClient) Startup(process process.IIMProcess) error {
 		}
 	}()
 	return nil
+}
+func (_self *WSClient) Reconnect() error {
+	//如果通道在线 先关闭
+	if _self.Channel.IsActive() {
+		_self.Channel.Close(errors.New("【IM】IM客户端正常关闭"))
+	}
+	//停止心跳
+	_self.handler.GetMessageManager().StopHeartbeat()
+	//停止Qos
+	_self.handler.GetMessageManager().StopQos()
+	//再重新启动
+	return _self.Startup(_self.handler.GetMessageManager().LogicProcess)
 }
