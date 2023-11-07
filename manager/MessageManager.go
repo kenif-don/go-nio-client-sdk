@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"fmt"
 	"github.com/go-netty/go-netty"
 	"im-sdk/model"
 	"im-sdk/process"
@@ -71,7 +70,6 @@ func (_self *MessageManager) Send(protocol *model.Protocol) {
 	util.Out("【IM】消息发送成功！")
 }
 func (_self *MessageManager) BaseSend(protocol *model.Protocol) {
-	fmt.Printf("【IM】IM发送消息 : %v \n", protocol)
 	err := _self.Channel.Write(protocol)
 	if err != nil {
 		util.Err("【IM】IM发送消息失败！ %s\n", err.Error())
