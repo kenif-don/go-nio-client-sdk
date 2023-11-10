@@ -5,6 +5,8 @@ import (
 )
 
 type IIMProcess interface {
+	//Connected 与服务器链接成功
+	Connected()
 	//SendOkCallback 发送成功的回调
 	//仅仅是发出去了 如果是Qos消息 此时还未收到服务器反馈
 	//SendOk代表发出Qos消息并接收到了服务器反馈

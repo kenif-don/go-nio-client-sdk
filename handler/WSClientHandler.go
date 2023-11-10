@@ -26,6 +26,11 @@ func (_self *WSClientHandler) HandleActive(ctx netty.ActiveContext) {
 	ctx.HandleActive()
 	util.Out("【IM】与服务器连接成功！")
 	_self.messageManager = manager.New(ctx.Channel(), _self.process)
+	_self.process.Connected()
+	//启动心跳
+	_self.messageManager.StartupHeartbeat()
+	//启动qos
+	_self.messageManager.StartupQos()
 }
 func (_self *WSClientHandler) GetMessageManager() *manager.MessageManager {
 	return _self.messageManager
