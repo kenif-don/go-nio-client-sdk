@@ -33,10 +33,10 @@ func (_self *MessageManager) HandlerAck(protocol *model.Protocol) {
 	_self.LogicProcess.SendOk(v.Protocol)
 }
 
-// SendLogOut 发起退出请求
-func (_self *MessageManager) SendLogOut() {
+// SendLogout 发起退出请求
+func (_self *MessageManager) SendLogout() {
 	_self.Send(&model.Protocol{Type: model.ChannelLoginOut})
-	_self.LogicProcess.LogOut()
+	_self.LogicProcess.Logout()
 }
 
 // SendLogin 发起登录请求

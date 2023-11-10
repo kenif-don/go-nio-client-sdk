@@ -23,6 +23,6 @@ type IIMProcess interface {
 	SendOk(protocol *model.Protocol)
 	//Exception 链接发生异常
 	Exception(msg string)
-	//LogOut 退出登录回调 可以在里面做重连
-	LogOut()
+	//Logout 退出登录回调 可以在里面做重连
+	Logout()
 }
