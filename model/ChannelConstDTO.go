@@ -7,4 +7,5 @@ const (
 	ChannelAck        int = 2 //消息回执
 	ChannelHeart      int = 3 //心跳类型
 	ChannelGroupMsg   int = 8 //群聊消息交互
+	ChannelLoginOut   int = 9 //退出登录
 )
