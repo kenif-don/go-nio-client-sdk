@@ -51,12 +51,6 @@ func (_self *MessageManager) SendAck(protocol *model.Protocol) {
 
 // Send 通用的发送请求函数
 func (_self *MessageManager) Send(protocol *model.Protocol) {
-	//判断是否在线 不在线就重连？
-	if !_self.Channel.IsActive() {
-		util.Out("【IM】IM未连接，重连中...")
-		_self.LogicProcess.SendFailedCallback(protocol)
-		return
-	}
 	//ACK为100 且 No不为空 就将消息放入Qos
 	if protocol.Ack == 100 && protocol.No != "" {
 		//判断qos中是否已存在此消息 存在 那么此消息就不发 交给Qos即可
