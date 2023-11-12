@@ -26,7 +26,7 @@ func (_self *WSClient) Startup(process process.IIMProcess) error {
 	_self.handler = handler.NewClientHandler(process)
 	client := func(channel netty.Channel) {
 		channel.Pipeline().
-			AddLast(frame.PacketCodec(1024)).
+			AddLast(frame.PacketCodec(1024 * 1024 * 10)).
 			AddLast(format.JSONCodec(true, false)).
 			AddLast(_self.handler)
 	}
