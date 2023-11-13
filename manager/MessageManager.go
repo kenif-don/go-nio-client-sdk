@@ -46,6 +46,7 @@ func (_self *MessageManager) SendLogin(loginInfo *model.LoginInfo) {
 
 // SendAck 发送应答包
 func (_self *MessageManager) SendAck(protocol *model.Protocol) {
+	util.Out("【IM】发送应答包，ID[%s]\n", protocol.No)
 	_self.BaseSend(model.NewAckPack(protocol.No))
 }
 
@@ -67,7 +68,7 @@ func (_self *MessageManager) Send(protocol *model.Protocol) {
 	}
 	//发送
 	_self.BaseSend(protocol)
-	util.Out("【IM】消息发送成功！")
+	util.Out("【IM】发出一条消息，ID[%s]\n", protocol)
 }
 func (_self *MessageManager) BaseSend(protocol *model.Protocol) {
 	err := _self.Channel.Write(protocol)
