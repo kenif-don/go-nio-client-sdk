@@ -48,7 +48,7 @@ func (_self *WSClient) Startup(process process.IIMProcess) error {
 }
 func (_self *WSClient) Reconnect() error {
 	//如果通道在线 先关闭
-	if _self.Channel.IsActive() {
+	if _self.Channel != nil && _self.Channel.IsActive() {
 		_self.Channel.Close(errors.New("【IM】IM客户端正常关闭"))
 	}
 	//停止心跳
