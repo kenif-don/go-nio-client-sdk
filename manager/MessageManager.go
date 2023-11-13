@@ -80,27 +80,31 @@ func (_self *MessageManager) BaseSend(protocol *model.Protocol) {
 // StartupQos 启动Qos
 func (_self *MessageManager) StartupQos() {
 	_self.qosTicker = time.NewTicker(time.Second * 2)
-	select {
-	case <-_self.qosTicker.C:
-		for k, msg := range _self.qosMessageDTO {
-			//当前发送时间必须比上次发送时间至少间隔QOS_DELAY
-			curTime := time.Now()
-			if curTime.Unix()-msg.PreSendTimeStamp.Unix() < 2000 {
-				continue
+	go func() {
+		for {
+			select {
+			case <-_self.qosTicker.C:
+				for k, msg := range _self.qosMessageDTO {
+					//当前发送时间必须比上次发送时间至少间隔QOS_DELAY
+					curTime := time.Now()
+					if curTime.Unix()-msg.PreSendTimeStamp.Unix() < 2000 {
+						continue
+					}
+					//次数超限--意味着失败
+					if msg.Frequency > 15 {
+						delete(_self.qosMessageDTO, k)
+						_self.LogicProcess.SendFailedCallback(msg.Protocol)
+						continue
+					}
+					//记录当前发送时间
+					msg.Frequency++
+					msg.PreSendTimeStamp = curTime
+					_self.BaseSend(msg.Protocol)
+					_self.LogicProcess.SendOkCallback(msg.Protocol)
+				}
 			}
-			//次数超限--意味着失败
-			if msg.Frequency > 15 {
-				delete(_self.qosMessageDTO, k)
-				_self.LogicProcess.SendFailedCallback(msg.Protocol)
-				continue
-			}
-			//记录当前发送时间
-			msg.Frequency++
-			msg.PreSendTimeStamp = curTime
-			_self.BaseSend(msg.Protocol)
-			_self.LogicProcess.SendOkCallback(msg.Protocol)
 		}
-	}
+	}()
 }
 
 // StopQos 停止Qos
@@ -114,11 +118,15 @@ func (_self *MessageManager) StopQos() {
 // StartupHeartbeat 启动Qos
 func (_self *MessageManager) StartupHeartbeat() {
 	_self.heartbeatTicker = time.NewTicker(time.Second * 30)
-	select {
-	case <-_self.heartbeatTicker.C:
-		util.Out("【IM】发送心跳包\n")
-		_self.BaseSend(model.NewHeartbeatPack())
-	}
+	go func() {
+		for {
+			select {
+			case <-_self.heartbeatTicker.C:
+				util.Out("【IM】发送心跳包\n")
+				_self.BaseSend(model.NewHeartbeatPack())
+			}
+		}
+	}()
 }
 
 // StopHeartbeat 停止心跳
