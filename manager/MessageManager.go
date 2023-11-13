@@ -106,6 +106,7 @@ func (_self *MessageManager) StartupQos() {
 // StopQos 停止Qos
 func (_self *MessageManager) StopQos() {
 	if _self.qosTicker != nil {
+		util.Out("【IM】停止Qos\n")
 		_self.qosTicker.Stop()
 	}
 }
@@ -115,6 +116,7 @@ func (_self *MessageManager) StartupHeartbeat() {
 	_self.heartbeatTicker = time.NewTicker(time.Second * 30)
 	select {
 	case <-_self.heartbeatTicker.C:
+		util.Out("【IM】发送心跳包\n")
 		_self.BaseSend(model.NewHeartbeatPack())
 	}
 }
@@ -122,6 +124,7 @@ func (_self *MessageManager) StartupHeartbeat() {
 // StopHeartbeat 停止心跳
 func (_self *MessageManager) StopHeartbeat() {
 	if _self.heartbeatTicker != nil {
+		util.Out("【IM】停止心跳\n")
 		_self.heartbeatTicker.Stop()
 	}
 }
