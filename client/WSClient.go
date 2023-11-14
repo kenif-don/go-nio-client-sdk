@@ -58,3 +58,6 @@ func (_self *WSClient) Reconnect() error {
 	//再重新启动
 	return _self.Startup(_self.handler.GetMessageManager().LogicProcess)
 }
+func (_self *WSClient) OpenLog() {
+	util.OpenLog()
+}

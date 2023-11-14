@@ -117,12 +117,11 @@ func (_self *MessageManager) StopQos() {
 
 // StartupHeartbeat 启动Qos
 func (_self *MessageManager) StartupHeartbeat() {
-	_self.heartbeatTicker = time.NewTicker(time.Second * 30)
+	_self.heartbeatTicker = time.NewTicker(time.Second * 25)
 	go func() {
 		for {
 			select {
 			case <-_self.heartbeatTicker.C:
-				util.Out("【IM】发送心跳包\n")
 				_self.BaseSend(model.NewHeartbeatPack())
 			}
 		}

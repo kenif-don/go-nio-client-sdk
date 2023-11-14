@@ -5,9 +5,18 @@ import (
 	"fmt"
 )
 
+var Debug = false
+
+func OpenLog() {
+	//开启日志
+	Debug = true
+}
+
 // Out 统一的日志打印函数
 func Out(str string, params ...interface{}) {
-	fmt.Printf(str, params)
+	if Debug {
+		fmt.Printf(str, params)
+	}
 }
 
 // Err 统一的错误日志打印函数
