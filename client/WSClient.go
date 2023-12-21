@@ -41,9 +41,9 @@ func (_self *WSClient) Startup(process process.IIMProcess, p transport.Factory) 
 	go func() {
 		select {
 		case <-channel.Context().Done():
-			util.Err("【IM】连接异常断开 重连1？")
+			util.Err("【IM】连接异常断开 重连1？" + channel.Context().Err().Error())
 		case <-bootstrap.Context().Done():
-			util.Err("【IM】连接异常断开 重连2？")
+			util.Err("【IM】连接异常断开 重连2？" + channel.Context().Err().Error())
 		}
 	}()
 	return nil
