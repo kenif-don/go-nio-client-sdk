@@ -1,6 +1,7 @@
 package process
 
 import (
+	"github.com/go-netty/go-netty"
 	"im-sdk/model"
 )
 
@@ -22,7 +23,9 @@ type IIMProcess interface {
 	//SendOk qos中的消息发送成功 服务器成功返回
 	SendOk(protocol *model.Protocol)
 	//Exception 链接发生异常
-	Exception(err error)
+	Exception(ctx netty.ExceptionContext, err error)
 	//Logout 退出登录回调 可以在里面做重连
 	Logout()
+	//HandleEvent 处理事件
+	HandleEvent(ctx netty.EventContext, event netty.Event)
 }
