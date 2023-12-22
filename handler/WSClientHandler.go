@@ -71,9 +71,9 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 	ctx.HandleRead(message)
 }
 
-func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, err netty.Exception) {
-	ctx.HandleException(err)
-	_self.messageManager.LogicProcess.Exception(ctx, err)
+func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, e netty.Exception) {
+	ctx.HandleException(e)
+	_self.messageManager.LogicProcess.Exception(ctx, e)
 }
 func (_self *WSClientHandler) HandleEvent(ctx netty.EventContext, event netty.Event) {
 	_self.messageManager.LogicProcess.HandleEvent(ctx, event)

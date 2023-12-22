@@ -23,7 +23,7 @@ type IIMProcess interface {
 	//SendOk qos中的消息发送成功 服务器成功返回
 	SendOk(protocol *model.Protocol)
 	//Exception 链接发生异常
-	Exception(ctx netty.ExceptionContext, err error)
+	Exception(ctx netty.ExceptionContext, e netty.Exception)
 	//Logout 退出登录回调 可以在里面做重连
 	Logout()
 	//HandleEvent 处理事件
