@@ -1,11 +1,12 @@
 package manager
 
 import (
-	"github.com/go-netty/go-netty"
 	"im-sdk/model"
 	"im-sdk/process"
 	"im-sdk/util"
 	"time"
+
+	"github.com/go-netty/go-netty"
 )
 
 type MessageManager struct {
@@ -71,6 +72,9 @@ func (_self *MessageManager) Send(protocol *model.Protocol) {
 	util.Out("【IM】发出一条消息，ID[%s]\n", protocol)
 }
 func (_self *MessageManager) BaseSend(protocol *model.Protocol) {
+	//转换为json对象
+	//json, err := util.Obj2Str(protocol)
+	//println(json)
 	err := _self.Channel.Write(protocol)
 	if err != nil {
 		util.Err("【IM】IM发送消息失败！ %s\n", err.Error())
@@ -79,6 +83,7 @@ func (_self *MessageManager) BaseSend(protocol *model.Protocol) {
 
 // StartupQos 启动Qos
 func (_self *MessageManager) StartupQos() {
+	util.Out("【IM】启动Qos\n")
 	_self.qosTicker = time.NewTicker(time.Second * 2)
 	go func() {
 		for {
@@ -115,23 +120,7 @@ func (_self *MessageManager) StopQos() {
 	}
 }
 
-// StartupHeartbeat 启动Qos
-func (_self *MessageManager) StartupHeartbeat() {
-	_self.heartbeatTicker = time.NewTicker(time.Second * 25)
-	go func() {
-		for {
-			select {
-			case <-_self.heartbeatTicker.C:
-				_self.BaseSend(model.NewHeartbeatPack())
-			}
-		}
-	}()
-}
-
-// StopHeartbeat 停止心跳
-func (_self *MessageManager) StopHeartbeat() {
-	if _self.heartbeatTicker != nil {
-		util.Out("【IM】停止心跳\n")
-		_self.heartbeatTicker.Stop()
-	}
+// SendHeartbeat 发起心跳包
+func (_self *MessageManager) SendHeartbeat() {
+	_self.BaseSend(model.NewHeartbeatPack())
 }

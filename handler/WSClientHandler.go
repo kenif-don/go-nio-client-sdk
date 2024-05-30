@@ -1,11 +1,13 @@
 package handler
 
 import (
-	"github.com/go-netty/go-netty"
 	"im-sdk/manager"
 	"im-sdk/model"
 	"im-sdk/process"
 	"im-sdk/util"
+	"strings"
+
+	"github.com/go-netty/go-netty"
 )
 
 var wsClientHandler = &WSClientHandler{}
@@ -13,27 +15,30 @@ var wsClientHandler = &WSClientHandler{}
 type WSClientHandler struct {
 	messageManager *manager.MessageManager
 	process        process.IIMProcess
+	reconnect      Operation
 }
+type Operation func(tp string)
 
 func GetClientHandler() *WSClientHandler {
 	return wsClientHandler
 }
-func NewClientHandler(process process.IIMProcess) *WSClientHandler {
+func NewClientHandler(reconnect Operation, process process.IIMProcess) *WSClientHandler {
 	wsClientHandler.process = process
+	wsClientHandler.reconnect = reconnect
 	return wsClientHandler
-}
-func (_self *WSClientHandler) HandleActive(ctx netty.ActiveContext) {
-	ctx.HandleActive()
-	util.Out("【IM】与服务器连接成功！")
-	_self.messageManager = manager.New(ctx.Channel(), _self.process)
-	_self.process.Connected()
-	//启动心跳
-	_self.messageManager.StartupHeartbeat()
-	//启动qos
-	_self.messageManager.StartupQos()
 }
 func (_self *WSClientHandler) GetMessageManager() *manager.MessageManager {
 	return _self.messageManager
+}
+
+// HandleActive 客户端链接
+func (_self *WSClientHandler) HandleActive(ctx netty.ActiveContext) {
+	ctx.HandleActive()
+	println("【IM】与服务器连接成功")
+	_self.messageManager = manager.New(ctx.Channel(), _self.process)
+	_self.process.Connected()
+	//启动qos
+	_self.messageManager.StartupQos()
 }
 
 // HandleRead 接收到服务器消息
@@ -71,10 +76,20 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 	ctx.HandleRead(message)
 }
 
+// HandleException 处理异常
 func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, e netty.Exception) {
-	ctx.HandleException(e)
-	_self.messageManager.LogicProcess.Exception(ctx, e)
+	if strings.Contains(e.Error(), "i/o timeout") {
+		//超时 发生心跳
+		_self.messageManager.SendHeartbeat()
+	} else if strings.Contains(e.Error(), "An existing connection was forcibly closed by the remote host") {
+		//重连
+		_self.reconnect("ws")
+	} else {
+		_self.messageManager.LogicProcess.Exception(ctx, e)
+	}
 }
-func (_self *WSClientHandler) HandleEvent(ctx netty.EventContext, event netty.Event) {
-	_self.messageManager.LogicProcess.HandleEvent(ctx, event)
+
+// HandleInactive 断开链接
+func (_self *WSClientHandler) HandleInactive(ctx netty.InactiveContext, ex netty.Exception) {
+	println("【IM】链接断开")
 }

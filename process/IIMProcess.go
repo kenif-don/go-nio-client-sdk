@@ -1,8 +1,9 @@
 package process
 
 import (
-	"github.com/go-netty/go-netty"
 	"im-sdk/model"
+
+	"github.com/go-netty/go-netty"
 )
 
 type IIMProcess interface {
@@ -20,12 +21,10 @@ type IIMProcess interface {
 	LoginFail(protocol *model.Protocol)
 	//ReceivedMessage 接收到消息
 	ReceivedMessage(protocol *model.Protocol)
-	//SendOk qos中的消息发送成功 服务器成功返回
+	//SendOk qos中的消息发送成功 服务器成功返回 消息真正的发送成功了
 	SendOk(protocol *model.Protocol)
 	//Exception 链接发生异常
 	Exception(ctx netty.ExceptionContext, e netty.Exception)
-	//Logout 退出登录回调 可以在里面做重连
+	//Logout 退出登录回调 可以在里面做重连 只有手动调用MessageManager->SendLogout才有这个回调
 	Logout()
-	//HandleEvent 处理事件
-	HandleEvent(ctx netty.EventContext, event netty.Event)
 }
