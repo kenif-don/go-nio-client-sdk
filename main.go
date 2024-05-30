@@ -1,10 +1,10 @@
 package main
 
 import (
-	"im-sdk/client"
-	"im-sdk/handler"
-	"im-sdk/model"
-	"im-sdk/util"
+	"go-nio-client-sdk/client"
+	"go-nio-client-sdk/handler"
+	"go-nio-client-sdk/model"
+	"go-nio-client-sdk/util"
 
 	"github.com/go-netty/go-netty"
 )

@@ -1,7 +1,7 @@
 package process
 
 import (
-	"im-sdk/model"
+	"go-nio-client-sdk/model"
 
 	"github.com/go-netty/go-netty"
 )

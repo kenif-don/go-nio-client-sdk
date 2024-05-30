@@ -1,9 +1,9 @@
 package manager
 
 import (
-	"im-sdk/model"
-	"im-sdk/process"
-	"im-sdk/util"
+	"go-nio-client-sdk/model"
+	"go-nio-client-sdk/process"
+	"go-nio-client-sdk/util"
 	"time"
 
 	"github.com/go-netty/go-netty"

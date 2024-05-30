@@ -3,9 +3,9 @@ package client
 import (
 	"encoding/binary"
 	"errors"
-	"im-sdk/handler"
-	"im-sdk/process"
-	"im-sdk/util"
+	"go-nio-client-sdk/handler"
+	"go-nio-client-sdk/process"
+	"go-nio-client-sdk/util"
 	"time"
 
 	"github.com/go-netty/go-netty"

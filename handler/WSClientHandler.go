@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"im-sdk/manager"
-	"im-sdk/model"
-	"im-sdk/process"
-	"im-sdk/util"
+	"go-nio-client-sdk/manager"
+	"go-nio-client-sdk/model"
+	"go-nio-client-sdk/process"
+	"go-nio-client-sdk/util"
 	"strings"
 
 	"github.com/go-netty/go-netty"
