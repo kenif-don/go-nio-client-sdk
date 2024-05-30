@@ -94,4 +94,5 @@ func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, e nett
 // HandleInactive 断开链接
 func (_self *WSClientHandler) HandleInactive(ctx netty.InactiveContext, ex netty.Exception) {
 	println("【IM】链接断开")
+	_self.messageManager.LogicProcess.Disconnect()
 }
