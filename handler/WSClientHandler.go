@@ -81,7 +81,9 @@ func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, e nett
 	if strings.Contains(e.Error(), "i/o timeout") {
 		//超时 发生心跳
 		_self.messageManager.SendHeartbeat()
-	} else if strings.Contains(e.Error(), "An existing connection was forcibly closed by the remote host") {
+	} else if strings.Contains(e.Error(), "An existing connection was forcibly closed by the remote host") ||
+		strings.Contains(e.Error(), "unexpected EOF") ||
+		strings.Contains(e.Error(), " An established connection was aborted by the software in your host machine.") {
 		//重连
 		_self.reconnect("ws")
 	} else {
