@@ -55,7 +55,7 @@ func (_self *WSClient) Startup(process process.IIMProcess, tp string) error {
 		}
 		pipeline.
 			//读写超时
-			AddLast(&handler.AllIdleHandler{Timeout: 4 * time.Second}).
+			AddLast(&handler.AllIdleHandler{Timeout: 5 * time.Second}).
 			AddLast(format.JSONCodec(true, false)).
 			AddLast(_self.handler)
 	}
@@ -82,7 +82,7 @@ func (_self *WSClient) Reconnect(tp string) {
 		_self.Channel.Close(errors.New("【IM】IM客户端正常关闭"))
 	}
 	//停止Qos
-	_self.handler.GetMessageManager().StopQos()
+	//_self.handler.GetMessageManager().StopQos()
 	//再重新启动
 	err := _self.Startup(_self.handler.GetMessageManager().LogicProcess, tp)
 	if err != nil {

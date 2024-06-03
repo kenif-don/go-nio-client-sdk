@@ -12,12 +12,11 @@ import (
 type MessageManager struct {
 	// qos定时器 对外不可见
 	qosTicker *time.Ticker
-	// 心跳定时器 对外不可见
-	heartbeatTicker *time.Ticker
 	// 用来装qos的消息map key需要用来做唯一判断
 	qosMessageDTO map[string]*model.QosMsg
 	LogicProcess  process.IIMProcess
 	Channel       netty.Channel
+	preHeartTime  int64
 }
 
 func New(Channel netty.Channel, process process.IIMProcess) *MessageManager {
@@ -57,7 +56,7 @@ func (_self *MessageManager) Send(protocol *model.Protocol) {
 	if protocol.Ack == 100 && protocol.No != "" {
 		//判断qos中是否已存在此消息 存在 那么此消息就不发 交给Qos即可
 		if _self.qosMessageDTO[protocol.No] != nil && _self.qosMessageDTO[protocol.No].Protocol.No != "" {
-			util.Out("【IM】Qos中已存在ID[%s]的消息,直接交由Qos管理，不再发送\n", protocol.No)
+			//util.Out("【IM】Qos中已存在ID[%s]的消息,直接交由Qos管理，不再发送\n", protocol.No)
 			return
 		}
 		//放入Qos
@@ -96,7 +95,7 @@ func (_self *MessageManager) StartupQos() {
 						continue
 					}
 					//次数超限--意味着失败
-					if msg.Frequency > 15 {
+					if msg.Frequency > 30 {
 						delete(_self.qosMessageDTO, k)
 						_self.LogicProcess.SendFailedCallback(msg.Protocol)
 						continue
@@ -120,7 +119,18 @@ func (_self *MessageManager) StopQos() {
 	}
 }
 
+// HandlerServerHeart 处理服务端心跳
+func (_self *MessageManager) HandlerServerHeart() {
+	_self.preHeartTime = time.Now().UnixMilli()
+}
+
 // SendHeartbeat 发起心跳包
 func (_self *MessageManager) SendHeartbeat() {
+	//如果当前时间 大于上一次心跳时间+心跳间隔 就重新链接
+	//if time.Now().UnixMilli()-_self.preHeartTime < 5000 {
+	//	_self.LogicProcess.Disconnect()
+	//	return
+	//}
+	_self.preHeartTime = time.Now().UnixMilli()
 	_self.BaseSend(model.NewHeartbeatPack())
 }

@@ -12,14 +12,12 @@ type AllIdleHandler struct {
 }
 
 func (h *AllIdleHandler) HandleActive(ctx netty.ActiveContext) {
-	// Set both read and write deadlines
 	if conn, ok := ctx.Channel().Transport().(net.Conn); ok {
 		conn.SetDeadline(time.Now().Add(h.Timeout))
 	}
 	ctx.HandleActive()
 }
 func (h *AllIdleHandler) HandleRead(ctx netty.InboundContext, message netty.Message) {
-	// Reset both read and write deadlines
 	if conn, ok := ctx.Channel().Transport().(net.Conn); ok {
 		conn.SetDeadline(time.Now().Add(h.Timeout))
 	}

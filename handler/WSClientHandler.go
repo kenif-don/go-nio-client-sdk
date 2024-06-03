@@ -36,9 +36,9 @@ func (_self *WSClientHandler) HandleActive(ctx netty.ActiveContext) {
 	ctx.HandleActive()
 	println("【IM】与服务器连接成功")
 	_self.messageManager = manager.New(ctx.Channel(), _self.process)
-	_self.process.Connected()
 	//启动qos
 	_self.messageManager.StartupQos()
+	_self.process.Connected()
 }
 
 // HandleRead 接收到服务器消息
@@ -69,6 +69,8 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 				_self.messageManager.HandlerAck(protocol)
 			}
 			break
+		case model.ChannelHeart:
+			//_self.messageManager.HandlerServerHeart()
 		}
 		//触发接收到消息的回调
 		_self.process.ReceivedMessage(protocol)
@@ -79,7 +81,7 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 // HandleException 处理异常
 func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, e netty.Exception) {
 	if strings.Contains(e.Error(), "i/o timeout") {
-		//超时 发生心跳
+		//超时 发送心跳
 		_self.messageManager.SendHeartbeat()
 	} else if strings.Contains(e.Error(), "An existing connection was forcibly closed by the remote host") ||
 		strings.Contains(e.Error(), "unexpected EOF") ||
