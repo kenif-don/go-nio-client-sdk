@@ -7,6 +7,8 @@ import (
 )
 
 type IIMProcess interface {
+	//OnConnecting 链接中 可以在这里做链接状态更新
+	OnConnecting()
 	//Connected 与服务器链接成功
 	Connected()
 	//SendOkCallback 发送成功的回调

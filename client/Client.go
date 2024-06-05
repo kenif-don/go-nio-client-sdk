@@ -21,6 +21,7 @@ type Client struct {
 	Url         string
 	nettyClient netty.Bootstrap
 	Channel     netty.Channel
+	process     process.IIMProcess
 }
 
 func New(tp, url string, process process.IIMProcess) *Client {
@@ -28,6 +29,7 @@ func New(tp, url string, process process.IIMProcess) *Client {
 		Url:         url,
 		Tp:          getTransport(tp),
 		nettyClient: netty.NewBootstrap(),
+		process:     process,
 	}
 	client.nettyClient = netty.NewBootstrap(netty.WithClientInitializer(func(channel netty.Channel) {
 		pipeline := channel.Pipeline()
@@ -44,7 +46,7 @@ func New(tp, url string, process process.IIMProcess) *Client {
 			AddLast(netty.ReadIdleHandler(5 * time.Second)).
 			AddLast(netty.WriteIdleHandler(5 * time.Second)).
 			AddLast(format.JSONCodec(true, false)).
-			AddLast(handler.NewClientHandler(client.Reconnect, process))
+			AddLast(handler.NewClientHandler(client.Reconnect, client.process))
 	}), client.Tp)
 
 	return client
@@ -63,6 +65,7 @@ func getTransport(tp string) netty.Option {
 }
 
 func (_self *Client) Startup() error {
+	_self.process.OnConnecting()
 	channel, err := _self.nettyClient.Connect(_self.Url)
 	_self.Channel = channel
 	if err != nil {

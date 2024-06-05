@@ -12,6 +12,10 @@ import (
 type IMProcess struct {
 }
 
+// OnConnecting 链接中 可以在这里做链接状态更新
+func (_self *IMProcess) OnConnecting() {
+
+}
 func (_self *IMProcess) Connected() {
 	//登录
 	handler.GetClientHandler().GetMessageManager().SendLogin(&model.LoginInfo{Id: "123", Device: "123", Token: "123"})
