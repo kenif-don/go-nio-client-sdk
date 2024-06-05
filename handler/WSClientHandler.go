@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"go-nio-client-sdk/manager"
 	"go-nio-client-sdk/model"
 	"go-nio-client-sdk/process"
@@ -17,7 +18,7 @@ type WSClientHandler struct {
 	process        process.IIMProcess
 	reconnect      Operation
 }
-type Operation func(tp string)
+type Operation func()
 
 func GetClientHandler() *WSClientHandler {
 	return wsClientHandler
@@ -65,29 +66,35 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 			}
 			break
 		case model.ChannelOne2oneMsg, model.ChannelGroupMsg:
+			//自己发送的qos需要删除
 			if protocol.Ack == 1 {
 				_self.messageManager.HandlerAck(protocol)
 			}
 			break
-		case model.ChannelHeart:
-			//_self.messageManager.HandlerServerHeart()
 		}
 		//触发接收到消息的回调
 		_self.process.ReceivedMessage(protocol)
 	}
 	ctx.HandleRead(message)
 }
+func (_self *WSClientHandler) HandleEvent(ctx netty.EventContext, event netty.Event) {
+	if _, ok := event.(netty.ReadIdleEvent); ok {
+		//心跳
+		_self.messageManager.SendHeartbeat()
+	} else if _, ok := event.(netty.WriteIdleEvent); ok {
+		//心跳
+		_self.messageManager.SendHeartbeat()
+	}
+	ctx.HandleEvent(event)
+}
 
 // HandleException 处理异常
 func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, e netty.Exception) {
-	if strings.Contains(e.Error(), "i/o timeout") {
-		//超时 发送心跳
-		_self.messageManager.SendHeartbeat()
-	} else if strings.Contains(e.Error(), "An existing connection was forcibly closed by the remote host") ||
+	if strings.Contains(e.Error(), "An existing connection was forcibly closed by the remote host") ||
 		strings.Contains(e.Error(), "unexpected EOF") ||
 		strings.Contains(e.Error(), " An established connection was aborted by the software in your host machine.") {
 		//重连
-		_self.reconnect("ws")
+		_self.reconnect()
 	} else {
 		_self.messageManager.LogicProcess.Exception(ctx, e)
 	}
@@ -95,6 +102,5 @@ func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, e nett
 
 // HandleInactive 断开链接
 func (_self *WSClientHandler) HandleInactive(ctx netty.InactiveContext, ex netty.Exception) {
-	println("【IM】链接断开")
-	_self.messageManager.LogicProcess.Disconnect()
+	fmt.Printf("【IM】链接断开,异常信息:%s \n", ex.Error())
 }

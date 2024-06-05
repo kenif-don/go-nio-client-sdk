@@ -1,9 +1,9 @@
 package manager
 
 import (
+	"fmt"
 	"go-nio-client-sdk/model"
 	"go-nio-client-sdk/process"
-	"go-nio-client-sdk/util"
 	"time"
 
 	"github.com/go-netty/go-netty"
@@ -46,7 +46,6 @@ func (_self *MessageManager) SendLogin(loginInfo *model.LoginInfo) {
 
 // SendAck 发送应答包
 func (_self *MessageManager) SendAck(protocol *model.Protocol) {
-	util.Out("【IM】发送应答包，ID[%s]\n", protocol.No)
 	_self.BaseSend(model.NewAckPack(protocol.No))
 }
 
@@ -56,7 +55,6 @@ func (_self *MessageManager) Send(protocol *model.Protocol) {
 	if protocol.Ack == 100 && protocol.No != "" {
 		//判断qos中是否已存在此消息 存在 那么此消息就不发 交给Qos即可
 		if _self.qosMessageDTO[protocol.No] != nil && _self.qosMessageDTO[protocol.No].Protocol.No != "" {
-			//util.Out("【IM】Qos中已存在ID[%s]的消息,直接交由Qos管理，不再发送\n", protocol.No)
 			return
 		}
 		//放入Qos
@@ -68,7 +66,6 @@ func (_self *MessageManager) Send(protocol *model.Protocol) {
 	}
 	//发送
 	_self.BaseSend(protocol)
-	util.Out("【IM】发出一条消息，ID[%s]\n", protocol)
 }
 func (_self *MessageManager) BaseSend(protocol *model.Protocol) {
 	//转换为json对象
@@ -76,13 +73,13 @@ func (_self *MessageManager) BaseSend(protocol *model.Protocol) {
 	//println(json)
 	err := _self.Channel.Write(protocol)
 	if err != nil {
-		util.Err("【IM】IM发送消息失败！ %s\n", err.Error())
+		fmt.Printf("【IM】IM发送消息失败！ %s\n", err.Error())
 	}
 }
 
 // StartupQos 启动Qos
 func (_self *MessageManager) StartupQos() {
-	util.Out("【IM】启动Qos\n")
+	fmt.Printf("【IM】启动Qos\n")
 	_self.qosTicker = time.NewTicker(time.Second * 2)
 	go func() {
 		for {
@@ -114,7 +111,7 @@ func (_self *MessageManager) StartupQos() {
 // StopQos 停止Qos
 func (_self *MessageManager) StopQos() {
 	if _self.qosTicker != nil {
-		util.Out("【IM】停止Qos\n")
+		fmt.Printf("【IM】停止Qos\n")
 		_self.qosTicker.Stop()
 	}
 }

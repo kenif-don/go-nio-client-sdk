@@ -27,6 +27,4 @@ type IIMProcess interface {
 	Exception(ctx netty.ExceptionContext, e netty.Exception)
 	//Logout 退出登录回调 可以在里面做重连 只有手动调用MessageManager->SendLogout才有这个回调
 	Logout()
-	//Disconnect 断开链接
-	Disconnect()
 }
