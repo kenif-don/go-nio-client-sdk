@@ -92,7 +92,8 @@ func (_self *WSClientHandler) HandleEvent(ctx netty.EventContext, event netty.Ev
 func (_self *WSClientHandler) HandleException(ctx netty.ExceptionContext, e netty.Exception) {
 	if strings.Contains(e.Error(), "An existing connection was forcibly closed by the remote host") ||
 		strings.Contains(e.Error(), "unexpected EOF") ||
-		strings.Contains(e.Error(), " An established connection was aborted by the software in your host machine.") {
+		strings.Contains(e.Error(), " An established connection was aborted by the software in your host machine.") ||
+		strings.Contains(e.Error(), "wsarecv: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.") {
 		//重连
 		_self.reconnect()
 	} else {
