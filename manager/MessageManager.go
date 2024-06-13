@@ -116,18 +116,14 @@ func (_self *MessageManager) StopQos() {
 	}
 }
 
-// HandlerServerHeart 处理服务端心跳
-func (_self *MessageManager) HandlerServerHeart() {
-	_self.preHeartTime = time.Now().UnixMilli()
-}
-
 // SendHeartbeat 发起心跳包
 func (_self *MessageManager) SendHeartbeat() {
-	//如果当前时间 大于上一次心跳时间+心跳间隔 就重新链接
-	//if time.Now().UnixMilli()-_self.preHeartTime < 5000 {
-	//	_self.LogicProcess.Disconnect()
-	//	return
-	//}
-	_self.preHeartTime = time.Now().UnixMilli()
+	//因为读超时和写超时都会发送心跳 如果同时读写都超时了 这里会发送两次 所以通过时间来做一次限制
+	now := time.Now().UnixMilli()
+	//因为超时设置的5秒 所以这里使用略低于这个值的判断即可
+	if now-_self.preHeartTime <= 4500 {
+		return
+	}
+	_self.preHeartTime = now
 	_self.BaseSend(model.NewHeartbeatPack())
 }

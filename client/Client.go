@@ -2,7 +2,6 @@ package client
 
 import (
 	"encoding/binary"
-	"errors"
 	"go-nio-client-sdk/handler"
 	"go-nio-client-sdk/process"
 	"time"
@@ -67,23 +66,24 @@ func getTransport(tp string) netty.Option {
 func (_self *Client) Startup() error {
 	_self.process.OnConnecting()
 	channel, err := _self.nettyClient.Connect(_self.Url)
-	_self.Channel = channel
 	if err != nil {
+		_self.Channel = nil
 		return err
 	}
+	_self.Channel = channel
 	return nil
 }
 func (_self *Client) Reconnect() {
-	println("【IM】重连中...")
 	//如果通道在线 先关闭
 	if _self.Channel != nil && _self.Channel.IsActive() {
-		_self.Channel.Close(errors.New("【IM】IM客户端正常关闭"))
+		_self.Channel.Close(nil)
 	}
+	println("【IM】重连中...")
 	//再重新启动
 	err := _self.Startup()
 	if err != nil {
 		//延迟重连
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 2)
 		_self.Reconnect()
 	}
 }

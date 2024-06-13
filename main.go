@@ -38,23 +38,20 @@ func (_self *IMProcess) ReceivedMessage(protocol *model.Protocol) {
 func (_self *IMProcess) SendOk(protocol *model.Protocol) {
 
 }
-func (_self *IMProcess) Exception(ctx netty.ExceptionContext, e netty.Exception) {
+func (_self *IMProcess) Exception(e netty.Exception) {
 	println("链接异常", e.Error())
 }
 func (_self *IMProcess) Logout() {
 
 }
-func (_self *IMProcess) Disconnect() {
-	ct.Reconnect()
-}
 
 var ct *client.Client
 
 func main() {
-	ct = client.New("ws", "ws://127.0.0.1:1003", &IMProcess{})
+	ct = client.New("ws", "ws://world-master.online:8003", &IMProcess{})
 	e := ct.Startup()
 	if e != nil {
-		panic(e)
+		println(e.Error())
 		return
 	}
 	select {}
