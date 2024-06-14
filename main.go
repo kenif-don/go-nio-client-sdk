@@ -49,10 +49,6 @@ var ct *client.Client
 
 func main() {
 	ct = client.New("ws", "ws://world-master.online:8003", &IMProcess{})
-	e := ct.Startup()
-	if e != nil {
-		println(e.Error())
-		return
-	}
+	ct.Startup()
 	select {}
 }

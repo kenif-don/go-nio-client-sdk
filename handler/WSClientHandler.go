@@ -17,17 +17,16 @@ type WSClientHandler struct {
 	messageManager  *manager.MessageManager
 	process         process.IIMProcess
 	reconnectTicker *time.Ticker //重连定时器
-	reconnect       Operation
+	startup         manager.Operation
 	preGetMsgTime   int64 // 上一次收到消息的时间
 }
-type Operation func()
 
 func GetClientHandler() *WSClientHandler {
 	return wsClientHandler
 }
-func NewClientHandler(reconnect Operation, process process.IIMProcess) *WSClientHandler {
+func NewClientHandler(startup manager.Operation, process process.IIMProcess) *WSClientHandler {
 	wsClientHandler.process = process
-	wsClientHandler.reconnect = reconnect
+	wsClientHandler.startup = startup
 	return wsClientHandler
 }
 func (_self *WSClientHandler) GetMessageManager() *manager.MessageManager {
@@ -38,11 +37,12 @@ func (_self *WSClientHandler) GetMessageManager() *manager.MessageManager {
 func (_self *WSClientHandler) HandleActive(ctx netty.ActiveContext) {
 	ctx.HandleActive()
 	println("【IM】与服务器连接成功")
-	_self.messageManager = manager.New(ctx.Channel(), _self.process)
+	_self.messageManager = manager.New(ctx.Channel(), _self.process, _self.startup)
 	//先停 再启动qos
 	_self.messageManager.StopQos()
 	_self.messageManager.StartupQos()
 	//在内部会自动停止 这里只需启动
+	_self.stopReConnect()
 	_self.startReConnect()
 	_self.process.Connected()
 }
@@ -79,7 +79,7 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 			}
 			break
 		case model.ChannelHeart:
-			println("收到服务器心跳")
+			println("服务器心跳")
 			break
 
 		}
@@ -128,9 +128,7 @@ func (_self *WSClientHandler) startReConnect() {
 			case <-_self.reconnectTicker.C:
 				//避免刚发心跳服务器秒回 导致需要等5秒才能收到下一条回复 所以这里要大于5秒
 				if time.Now().Unix() > (_self.preGetMsgTime + 6) {
-					_self.reconnect()
-					//开始重连后 取消定时器 不然会反复调重连方法
-					_self.stopReConnect()
+					_self.startup()
 				}
 			}
 		}

@@ -21,6 +21,7 @@ type Client struct {
 	nettyClient netty.Bootstrap
 	Channel     netty.Channel
 	process     process.IIMProcess
+	connector   *Connector
 }
 
 func New(tp, url string, process process.IIMProcess) *Client {
@@ -45,10 +46,35 @@ func New(tp, url string, process process.IIMProcess) *Client {
 			AddLast(netty.ReadIdleHandler(5 * time.Second)).
 			AddLast(netty.WriteIdleHandler(5 * time.Second)).
 			AddLast(format.JSONCodec(true, false)).
-			AddLast(handler.NewClientHandler(client.Reconnect, client.process))
+			AddLast(handler.NewClientHandler(client.Startup, client.process))
 	}), client.Tp)
-
+	client.connector = NewConnector(client)
+	client.connector.Start()
 	return client
+}
+func (_self *Client) Startup() {
+	//如果已经在执行启动 这里会直接结束 不会重复启动
+	_self.connector.TriggerReconnect()
+}
+func (_self *Client) connect() {
+	println("【IM】开始链接服务器")
+	//如果通道在线 先关闭
+	if _self.Channel != nil && _self.Channel.IsActive() {
+		_self.Channel.Close(nil)
+	}
+	//再重新启动
+	_self.Channel = nil
+	_self.process.OnConnecting()
+	channel, err := _self.nettyClient.Connect(_self.Url)
+	if err == nil {
+		_self.Channel = channel
+		return
+
+	}
+	//延迟重连
+	time.Sleep(time.Second * 2)
+	//不是递归调用 而是利用连接器
+	_self.Startup()
 }
 func getTransport(tp string) netty.Option {
 	var p transport.Factory
@@ -61,29 +87,4 @@ func getTransport(tp string) netty.Option {
 		break
 	}
 	return netty.WithTransport(p)
-}
-
-func (_self *Client) Startup() error {
-	_self.process.OnConnecting()
-	channel, err := _self.nettyClient.Connect(_self.Url)
-	if err != nil {
-		_self.Channel = nil
-		return err
-	}
-	_self.Channel = channel
-	return nil
-}
-func (_self *Client) Reconnect() {
-	//如果通道在线 先关闭
-	if _self.Channel != nil && _self.Channel.IsActive() {
-		_self.Channel.Close(nil)
-	}
-	println("【IM】重连中...")
-	//再重新启动
-	err := _self.Startup()
-	if err != nil {
-		//延迟重连
-		time.Sleep(time.Second * 2)
-		_self.Reconnect()
-	}
 }

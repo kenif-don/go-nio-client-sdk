@@ -9,6 +9,8 @@ import (
 	"github.com/go-netty/go-netty"
 )
 
+// Operation 函数式申明
+type Operation func()
 type MessageManager struct {
 	// qos定时器 对外不可见
 	qosTicker *time.Ticker
@@ -16,14 +18,16 @@ type MessageManager struct {
 	qosMessageDTO map[string]*model.QosMsg
 	LogicProcess  process.IIMProcess
 	Channel       netty.Channel
-	preHeartTime  int64
+	preHeartTime  int64 // 上次心跳时间
+	startup       Operation
 }
 
-func New(Channel netty.Channel, process process.IIMProcess) *MessageManager {
+func New(Channel netty.Channel, process process.IIMProcess, startup Operation) *MessageManager {
 	return &MessageManager{
 		LogicProcess:  process,
 		Channel:       Channel,
 		qosMessageDTO: make(map[string]*model.QosMsg),
+		startup:       startup,
 	}
 }
 func (_self *MessageManager) HandlerAck(protocol *model.Protocol) {
@@ -68,10 +72,11 @@ func (_self *MessageManager) Send(protocol *model.Protocol) {
 	_self.BaseSend(protocol)
 }
 func (_self *MessageManager) BaseSend(protocol *model.Protocol) {
-	//转换为json对象
-	//json, err := util.Obj2Str(protocol)
-	//println(json)
 	err := _self.Channel.Write(protocol)
+	////TODO 如果是管道破裂 通常是由于连接被对方关闭或者网络中断-->应该是进入了后台 导致心跳丢失 服务器心跳超时 关闭了客户端链接
+	//if strings.Contains(err.Error(), "broken pipe") {
+	//	_self.startup()
+	//}
 	if err != nil {
 		fmt.Printf("【IM】IM发送消息失败！ %s\n", err.Error())
 	}
