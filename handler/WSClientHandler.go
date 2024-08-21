@@ -60,28 +60,22 @@ func (_self *WSClientHandler) HandleRead(ctx netty.InboundContext, message netty
 			_self.messageManager.LogicProcess.Exception(err)
 			return
 		}
-		//1-自己发出的消息 服务器返回收到的标志 100-别人给自己发送的
-		if protocol.Ack == 1 || protocol.Ack == 100 {
+		//自己发送的qos需要删除
+		if protocol.Ack == 1 {
+			_self.messageManager.HandlerAck(protocol)
+		}
+		//100-别人给自己发送的
+		if protocol.Ack == 100 {
 			_self.messageManager.SendAck(protocol)
 		}
-		switch protocol.Type {
-		case model.ChannelLogin:
+		//所有业务都让业务层去自己处理
+		if protocol.Type == model.ChannelLogin {
 			if protocol.Ack == 200 {
 				_self.process.LoginOk(protocol)
 			} else {
 				_self.process.LoginFail(protocol)
 			}
-			break
-		case model.ChannelOne2oneMsg, model.ChannelGroupMsg:
-			//自己发送的qos需要删除
-			if protocol.Ack == 1 {
-				_self.messageManager.HandlerAck(protocol)
-			}
-			break
-		case model.ChannelHeart:
-			println("服务器心跳")
-			break
-
+			return
 		}
 		//触发接收到消息的回调
 		_self.process.ReceivedMessage(protocol)
