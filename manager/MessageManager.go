@@ -54,7 +54,7 @@ func (_self *MessageManager) Send(protocol *model.Protocol) {
 	//ACK为100 且 No不为空 就将消息放入Qos
 	if protocol.Ack == 100 && protocol.No != "" {
 		//判断qos中是否已存在此消息 存在 那么此消息就不发 交给Qos即可
-		if _self.qosMessageDTO[protocol.No] != nil && _self.qosMessageDTO[protocol.No].Protocol.No != "" {
+		if _self.qosMessageDTO[protocol.No] != nil {
 			return
 		}
 		//放入Qos
@@ -85,23 +85,23 @@ func (_self *MessageManager) StartupQos() {
 		for {
 			select {
 			case <-_self.qosTicker.C:
-				for k, msg := range _self.qosMessageDTO {
+				for _, msg := range _self.qosMessageDTO {
 					//当前发送时间必须比上次发送时间至少间隔QOS_DELAY
 					curTime := time.Now()
-					if curTime.Unix()-msg.PreSendTimeStamp.Unix() < 2000 {
+					if curTime.Unix() < msg.PreSendTimeStamp.Unix()-1000 {
 						continue
 					}
-					//次数超限--意味着失败
-					if msg.Frequency > 30 {
-						delete(_self.qosMessageDTO, k)
-						_self.LogicProcess.SendFailedCallback(msg.Protocol)
-						continue
-					}
-					//记录当前发送时间
-					msg.Frequency++
+					////次数超限--意味着失败
+					//if msg.Frequency > 30 {
+					//	delete(_self.qosMessageDTO, k)
+					//	_self.LogicProcess.SendFailedCallback(msg.Protocol)
+					//	continue
+					//}
+					////记录当前发送时间
+					//msg.Frequency++
 					msg.PreSendTimeStamp = curTime
 					_self.BaseSend(msg.Protocol)
-					_self.LogicProcess.SendOkCallback(msg.Protocol)
+					//_self.LogicProcess.SendOkCallback(msg.Protocol)
 				}
 			}
 		}
